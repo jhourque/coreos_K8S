@@ -1,0 +1,224 @@
+storage:
+  files:
+    - filesystem: "root"
+      path:       "/etc/kubernetes/cni/docker_opts_cni.env"
+      mode:       0644
+      contents:
+        inline: |
+          DOCKER_OPT_BIP=""
+          DOCKER_OPT_IPMASQ=""
+    - filesystem: "root"
+      path:       "/etc/kubernetes/cni/net.d/10-flannel.conf"
+      mode:       0644
+      contents:
+        inline: |
+          {
+              "name": "podnet",
+              "type": "flannel",
+              "delegate": {
+                  "isDefaultGateway": true
+              }
+          }
+    - filesystem: "root"
+      path:       "/etc/kubernetes/ssl/cert_generator.sh"
+      mode:       0700
+      contents:
+        inline: |
+          #!/bin/bash
+          cd /etc/kubernetes/ssl
+          node_Ip=PRIVATE_IPV4
+          cat > worker-openssl.cnf<< EOF
+          [req]
+          req_extensions = v3_req
+          distinguished_name = req_distinguished_name
+          [req_distinguished_name]
+          [ v3_req ]
+          basicConstraints = CA:FALSE
+          keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+          subjectAltName = @alt_names
+          [alt_names]
+          IP.1 = $node_Ip
+          EOF
+          openssl genrsa -out worker-key.pem 2048
+          WORKER_IP=$node_Ip openssl req -new -key worker-key.pem -out worker.csr -subj "/CN=kube-node/O=system:masters" -config worker-openssl.cnf
+          WORKER_IP=$node_Ip openssl x509 -req -in worker.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out worker.pem -days 365 -extensions v3_req -extfile worker-openssl.cnf
+    - filesystem: "root"
+      path:       "/etc/kubernetes/ssl/ca.pem"
+      mode:       0644
+      contents:
+        inline: |
+          -----BEGIN CERTIFICATE-----
+          MIIDKTCCAhGgAwIBAgIJAMYhNXy5EUfNMA0GCSqGSIb3DQEBCwUAMCsxEDAOBgNV
+          BAMMB2t1YmUtY2ExFzAVBgNVBAoMDnN5c3RlbTptYXN0ZXJzMB4XDTE3MTIxMTE1
+          NTUyMloXDTQ1MDQyODE1NTUyMlowKzEQMA4GA1UEAwwHa3ViZS1jYTEXMBUGA1UE
+          CgwOc3lzdGVtOm1hc3RlcnMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+          AQDITVRdj3nJDIHk7efmnt92FtXXDteLh3382Nv9HZQG2nMgc6LpO6aCTx0jFiC7
+          e+EOhewTMQyGJE0eqERCeyU1E3MpwHsqEQbq12BtaNTpLWmriSQ/Lq59MF0GAEK3
+          GikCto8gXkR3H4/4qnr8IRh6jUgjJ+u2wI5jiKTca5VnAMA27fB5P9wiSD7ozbmV
+          qzV+ZGyPSa6TgYGjsvvmgRkUzBBvbb073HReQagbMPbKVEf6+iXvGkV0xv5b1XmB
+          /WYF/175fFjiOgSR7GrQwPj9bNg/9dHFGzNVs7oG0IUvRRlNJ/XBSbvP/yeZ40Qs
+          /8Kksqod8ttDW7k+OZh0rIvfAgMBAAGjUDBOMB0GA1UdDgQWBBTvjUmCa7qfAt9a
+          28jF4DQiJmxRpDAfBgNVHSMEGDAWgBTvjUmCa7qfAt9a28jF4DQiJmxRpDAMBgNV
+          HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQDAWrArJzp4L01E6w9O0DgXOXpa
+          ht8orv0ye936/OsKUBI+1D79CElC4xtkwvIGA5JCNx7dIuGsLWlxg/GCRq4uMUPI
+          MqLEy54X0xh/UA+kDKHe1t0xRQ5+t2yNqD7aa+j1mSW6kWNdzwAemkb5EHNZxiIg
+          njKhwSVSaYT/ky9nGcXoqJLDscLwkO825UQw0JC4HbX6G/j9wACkMrso+DLvenEm
+          qv7B2hSCz52nByw0m/YH/Oz48CMnL5LnQwRlf4MBPo0fwOI2pzWPWoJteEJ5MzJT
+          YvF8vF/FU1yrdkA5pXdzxTjt5WDWyT0x3/DTuRnzWYSJE8Pwe6X53zzPleFn
+          -----END CERTIFICATE-----
+    - filesystem: "root"
+      path:       "/etc/kubernetes/ssl/ca-key.pem"
+      mode:       0644
+      contents:
+        inline: |
+          -----BEGIN RSA PRIVATE KEY-----
+          MIIEowIBAAKCAQEAyE1UXY95yQyB5O3n5p7fdhbV1w7Xi4d9/Njb/R2UBtpzIHOi
+          6Tumgk8dIxYgu3vhDoXsEzEMhiRNHqhEQnslNRNzKcB7KhEG6tdgbWjU6S1pq4kk
+          Py6ufTBdBgBCtxopAraPIF5Edx+P+Kp6/CEYeo1IIyfrtsCOY4ik3GuVZwDANu3w
+          eT/cIkg+6M25las1fmRsj0muk4GBo7L75oEZFMwQb229O9x0XkGoGzD2ylRH+vol
+          7xpFdMb+W9V5gf1mBf9e+XxY4joEkexq0MD4/WzYP/XRxRszVbO6BtCFL0UZTSf1
+          wUm7z/8nmeNELP/CpLKqHfLbQ1u5PjmYdKyL3wIDAQABAoIBAQCWPuMklwWsGDSr
+          CwVjSRKnmrNmcJyf7c9ERUqmj3REu8GVuwedWYApyLw7YFLHL0H+ydfuAWG6kSpD
+          78Xb9FFRgbhlvhrk0AbXSxzqlLL4AXd9Ew7cUeDSyN9OLA3fGMFgZp3vkqZakJNG
+          3GIKE60v6CAPNtepqsBjytCXAh/8NRB8/lBLeneSrBU0pSwglYLo/7posDO6SpdX
+          cDlwdpUXRLIxN6wH/ufZxPjNsWJ0eKmtABMs+DUIq8oAmt/xo99BPQj/Vxq5yJkL
+          VDKCyhtB3e2l6dzn2nOH57xti9w6x3qYI5Q34BqRHaFNe1kL5aPu8Oq0ERi05+RT
+          q6JlSO+5AoGBAPI2xuGf50Fjd9jeZuTyR7Ao1+JXYWOwzLp/D6PwgLP95U97I9lT
+          ZVt1aeS4D3HvWArmL3c4xP+E1XES2TJk5HaD7fHWaU/zCvH7gONvyWj3cZM1su4i
+          8MlAKVD2CPLQNaIuLVIixi2NmDOLBYjlqjX56jwNGoTfh6ir51ond63zAoGBANOz
+          3hp1Mz1fXau4OVKZya+d/mGGK0qOD3BTw4md8OjqS1SsWgb89m8jdzIk34m6/+oV
+          mabujraBVdIQnn8iXlJzpZDBRnb4p6EWp91kg/GCdnvceTXk4Nbrw5Pe16y/6agA
+          X4YhplhmvV2u3bKTUzJP9/DOxFjBEoimhuRLQyllAoGAH/ccriAVO+rtoSBQwfw7
+          e8MYIpXXk3l8u0wTe1Y9FgP25FNi+sZnxPcs33NvDmFA5EdWkkxaq0ITjRWotl7c
+          S8vDdjwOr+9qTV8ctmdFVGX7hir7DzRrRJQEH9woeCsEOQARGRrfvplGMd8x/swY
+          d4Eg6YXtLwX0+EyffqVgxQMCgYBLTDh9VJ5K//aDM11AIe74hcuKyHvxYqHfJAvy
+          kLi1P1BX542F2seUNBsbPL49cMPBcLlcBJHCHDJ4Ku0U7xZ5YSTMXdJAUqTcyQAf
+          4LaFWg/mcj6yipvmFalUmPhBO2lSFf/j52gRHUnRXncAIyJ+TK81eXWg09tRu1lT
+          LenPeQKBgC1fZZ6wTcw+XRi9PSNyLPvG6Ucz8sSdTBNZKqe+4pD05MsIuoNZE22e
+          P42tGnTxvfB2t6uyJ/1pQnurREAeI0xLH5lYB8n4WGXGmM79co1a2YEVioKPNQOe
+          wiV6228wUr+nLir/FQzarbkhCXYFIW7O6mGiFc0XdqUBWsHzQtTE
+          -----END RSA PRIVATE KEY-----
+    - filesystem: "root"
+      path:       "/etc/systemd/system/kubelet.service"
+      mode:       0644
+      contents:
+        inline: |
+          [Service]
+          Environment=KUBELET_IMAGE_TAG=KUBELET_VERSION
+          Environment="RKT_OPTS=--uuid-file-save=/var/run/kubelet-pod.uuid \
+            --volume dns,kind=host,source=/etc/resolv.conf \
+            --mount volume=dns,target=/etc/resolv.conf \
+            --volume var-log,kind=host,source=/var/log \
+            --mount volume=var-log,target=/var/log"
+          ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+          ExecStartPre=/usr/bin/mkdir -p /var/log/containers
+          ExecStartPre=-/usr/bin/rkt rm --uuid-file=/var/run/kubelet-pod.uuid
+          ExecStart=/usr/lib/coreos/kubelet-wrapper \
+            --cni-conf-dir=/etc/kubernetes/cni/net.d \
+            --network-plugin=cni \
+            --container-runtime=docker \
+            --register-node=true \
+            --allow-privileged=true \
+            --pod-manifest-path=/etc/kubernetes/manifests \
+            --hostname-override=PRIVATE_IPV4 \
+            --cluster_dns=10.3.0.10 \
+            --cluster_domain=cluster.local \
+            --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml \
+            --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
+            --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem
+          ExecStop=-/usr/bin/rkt stop --uuid-file=/var/run/kubelet-pod.uuid
+          Restart=always
+          RestartSec=10
+          [Install]
+          WantedBy=multi-user.target
+    - filesystem: "root"
+      path:       "/etc/kubernetes/manifests/kube-proxy.yaml"
+      mode:       0644
+      contents:
+        inline: |
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: kube-proxy
+            namespace: kube-system
+          spec:
+            hostNetwork: true
+            containers:
+            - name: kube-proxy
+              image: quay.io/coreos/hyperkube:KUBELET_VERSION
+              command:
+              - /hyperkube
+              - proxy
+              - --master=http://PRIVATE_MASTER_IPV4:8080
+              - --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml
+              - --proxy-mode=iptables
+              securityContext:
+                privileged: true
+              volumeMounts:
+              - mountPath: /etc/ssl/certs
+                name: "ssl-certs"
+              - mountPath: /etc/kubernetes/worker-kubeconfig.yaml
+                name: "kubeconfig"
+                readOnly: true
+              - mountPath: /etc/kubernetes/ssl
+                name: "etc-kube-ssl"
+                readOnly: true
+            volumes:
+            - name: "ssl-certs"
+              hostPath:
+                path: "/usr/share/ca-certificates"
+            - name: "kubeconfig"
+              hostPath:
+                path: "/etc/kubernetes/worker-kubeconfig.yaml"
+            - name: "etc-kube-ssl"
+              hostPath:
+                path: "/etc/kubernetes/ssl"
+    - filesystem: "root"
+      path:       "/etc/kubernetes/worker-kubeconfig.yaml"
+      mode:       0644
+      contents:
+        inline: |
+          apiVersion: v1
+          kind: Config
+          clusters:
+          - name: local
+            cluster:
+              certificate-authority: /etc/kubernetes/ssl/ca.pem
+              server: https://PRIVATE_MASTER_IPV4
+          users:
+          - name: kubelet
+            user:
+              client-certificate: /etc/kubernetes/ssl/worker.pem
+              client-key: /etc/kubernetes/ssl/worker-key.pem
+          contexts:
+          - context:
+              cluster: local
+              user: kubelet
+            name: kubelet-context
+          current-context: kubelet-context
+flannel:
+  interface: "PRIVATE_IPV4"
+  etcd_endpoints: "http://PRIVATE_MASTER_IPV4:2379"
+  public_ip: "PRIVATE_IPV4"
+  etcd_prefix: "/coreos.com/network"
+systemd:
+  units:
+    - name: "flanneld.service"
+      enable: true
+    - name: "docker.service"
+      dropins:
+        - name: "40-flannel.conf"
+          contents: |
+            [Unit]
+            Requires=flanneld.service
+            After=flanneld.service
+            [Service]
+            EnvironmentFile=/etc/kubernetes/cni/docker_opts_cni.env
+      enable: true
+    - name: "kubelet.service"
+      dropins:
+        - name: "50-cert-generator.conf"
+          contents: |
+            [Service]
+            ExecStartPre=/etc/kubernetes/ssl/cert_generator.sh
+      enable: true

@@ -1,0 +1,2 @@
+ct --platform=ec2 -in-file coreos_master.yml | sed 's/KUBELET_VERSION/${KUBELET_VERSION}/g' | sed 's/HOSTNAME/${HOSTNAME}/g' | sed 's/PRIVATE_IPV4/${PRIVATE_IPV4}/g' > coreos_master.ign
+ct --platform=ec2 -in-file coreos_node.yml | sed 's/KUBELET_VERSION/${KUBELET_VERSION}/g' | sed 's/HOSTNAME/${HOSTNAME}/g' | sed 's/PRIVATE_MASTER_IPV4/${PRIVATE_MASTER_IPV4}/g' | sed 's/PRIVATE_IPV4/${PRIVATE_IPV4}/g' > coreos_node.ign

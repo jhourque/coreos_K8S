@@ -1,0 +1,11 @@
+if [ ! -f ./kubectl ]
+then
+  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+  chmod +x ./kubectl
+fi
+
+./kubectl config set-cluster default-cluster --server=https://$1 --certificate-authority=./ssl/ca.pem
+./kubectl config set-credentials default-admin --certificate-authority=./ssl/ca.pem --client-key=./ssl/admin-key.pem --client-certificate=./ssl/admin.pem
+./kubectl config set-context default-system --cluster=default-cluster --user=default-admin
+./kubectl config use-context default-system
+
