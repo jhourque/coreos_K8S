@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "tiad-tfstate"
-    region = "eu-central-1"
+    bucket = "coreosk8s-tfstate2"
+    region = "eu-west-1"
   }
 }

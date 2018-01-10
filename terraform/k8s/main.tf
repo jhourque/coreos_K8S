@@ -1,3 +1,23 @@
+variable "region" {
+  type = "string"
+}
+
+variable "region_backend" {
+  type = "string"
+}
+
+variable "cidr_block" {
+  type = "string"
+}
+
+variable "state_bucket" {
+  type = "string"
+}
+
+variable "vpc_state_key" {
+  type = "string"
+}
+
 variable coreos-name-master {
   type    = "string"
   default = "coreos-master1"
@@ -13,11 +33,24 @@ variable kubelet_version {
   default = "v1.8.5_coreos.0"
 }
 
-resource "aws_key_pair" "coreos_keypair" {
-  key_name   = "aws-coreos"
-  public_key = "${file("~/.ssh/id_rsa.coreos.pub")}"
+provider "aws" {
+  region = "${var.region}"
 }
 
+resource "aws_key_pair" "coreos_keypair" {
+  key_name   = "aws-coreos"
+  public_key = "${file("~/.ssh/id_rsa.k8s.pub")}"
+}
+
+data "terraform_remote_state" "vpc" {
+  backend = "s3"
+
+  config {
+    bucket = "${var.state_bucket}"
+    key    = "${var.vpc_state_key}"
+    region = "${var.region_backend}"
+  }
+}
 
 data "aws_ami" "coreos" {
   most_recent = true
@@ -38,7 +71,7 @@ data "aws_ami" "coreos" {
 resource "aws_security_group" "coreos" {
   name        = "${var.coreos-name-master}-servers"
   description = "Coreos K8S traffic"
-  vpc_id      = "${module.base_network.vpc_id}"
+  vpc_id      = "${data.terraform_remote_state.vpc.vpc_id}"
 
   tags {
     Name = "${var.coreos-name-master} Servers"
@@ -74,8 +107,8 @@ resource "aws_security_group_rule" "coreos_k8s_https" {
 
 #### K8S Master ####
 resource "aws_network_interface" "coreos_master" {
-  subnet_id       = "${module.base_network.public_subnets[0]}"
-  security_groups = ["${aws_security_group.coreos.id}", "${module.base_network.sg_remote_access}", "${module.base_network.sg_admin}"]
+  subnet_id       = "${data.terraform_remote_state.vpc.public_subnets[0]}"
+  security_groups = ["${aws_security_group.coreos.id}", "${data.terraform_remote_state.vpc.sg_remote_access}", "${data.terraform_remote_state.vpc.sg_admin}"]
 }
 
 resource "aws_iam_policy" "k8s_master" {
@@ -145,8 +178,8 @@ resource "aws_instance" "coreos_master" {
 
 #### K8S Node ####
 resource "aws_network_interface" "coreos_node" {
-  subnet_id       = "${module.base_network.public_subnets[0]}"
-  security_groups = ["${aws_security_group.coreos.id}", "${module.base_network.sg_remote_access}", "${module.base_network.sg_admin}"]
+  subnet_id       = "${data.terraform_remote_state.vpc.public_subnets[0]}"
+  security_groups = ["${aws_security_group.coreos.id}", "${data.terraform_remote_state.vpc.sg_remote_access}", "${data.terraform_remote_state.vpc.sg_admin}"]
 }
 
 data "template_file" "userdata_node" {
@@ -177,7 +210,7 @@ resource "aws_instance" "coreos_node" {
 }
 
 #resource "aws_route53_record" "coreos_dns_record" {
-#  zone_id = "${module.private_dns.private_host_zone}"
+#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
 #  #name    = "${var.coreos-name}"
 #  name    = "ip-${replace(aws_instance.coreos.private_ip,"/./","-")}"
 #  type    = "A"
@@ -186,11 +219,11 @@ resource "aws_instance" "coreos_node" {
 #}
 #
 #resource "aws_route53_record" "coreos_dns_reverse" {
-#  zone_id = "${module.private_dns.private_host_zone_reverse}"
+#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
 #  name    = "${replace(aws_instance.coreos.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
 #  type    = "PTR"
 #  ttl     = "300"
-#  records = ["${aws_instance.coreos.private_ip}.${module.private_dns.private_domain_name}"]
+#  records = ["${aws_instance.coreos.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
 #}
 
 

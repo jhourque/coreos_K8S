@@ -22,9 +22,9 @@ variable "bastion_ttl" {
   default = "300"
 }
 
-resource "aws_key_pair" "tiad_keypair" {
-  key_name   = "aws-tiadev"
-  public_key = "${file("~/.ssh/id_rsa.tiad.pub")}"
+resource "aws_key_pair" "k8s" {
+  key_name   = "aws-k8s"
+  public_key = "${file("~/.ssh/id_rsa.k8s.pub")}"
 }
 
 module "ami" {
@@ -53,7 +53,7 @@ module "bastion" {
 
   ami_id          = "${data.aws_ami.bastion.id}"
   type            = "${var.bastion_instance_type}"
-  key             = "${aws_key_pair.tiad_keypair.id}"
+  key             = "${aws_key_pair.k8s.id}"
   subnet          = "${module.base_network.public_subnets}"
   security_groups = ["${module.base_network.sg_remote_access}", "${module.base_network.sg_admin}"]
 

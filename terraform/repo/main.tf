@@ -7,15 +7,15 @@ provider "aws" {
 }
 
 resource "aws_ecr_repository" "vote" {
-  name = "demotiad/vote"
+  name = "demo/vote"
 }
 
 resource "aws_ecr_repository" "dynnginx" {
-  name = "demotiad/dynnginx"
+  name = "demo/dynnginx"
 }
 
 resource "aws_ecr_repository" "dynhaproxy" {
-  name = "demotiad/dynhaproxy"
+  name = "demo/dynhaproxy"
 }
 
 output "ecr_vote_id" {

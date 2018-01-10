@@ -1,17 +1,14 @@
-region = "eu-central-1"
+region = "eu-west-2"
+region_backend = "eu-west-1"
 
-cidr_block =           "10.40.0.0/16"
+cidr_block = "10.40.0.0/16"
 
-vpc_name = "DEMO DD"
+vpc_name = "DEMO K8S"
 
-domain = "demo.dd"
+domain = "demo.k8s"
 
-key_name = "aws-tiadev"
-state_bucket = "tiad-tfstate"
+key_name = "aws-k8s"
+state_bucket = "coreosk8s-tfstate2"
 repo_state_key = "repo.tfstate"
 vpc_state_key = "vpc.tfstate"
-consul_state_key = "consul.tfstate"
-ecs_state_key = "ecs.tfstate"
-dns_alias = "dday"
-
-consul_version ="1.0.1"
+dns_alias = "k8s"
