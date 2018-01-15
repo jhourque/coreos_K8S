@@ -30,7 +30,7 @@ variable coreos-name-node {
 
 variable kubelet_version {
   type    = "string"
-  default = "v1.8.5_coreos.0"
+  default = "v1.9.1_coreos.0"
 }
 
 provider "aws" {
@@ -115,31 +115,9 @@ resource "aws_iam_policy" "k8s_master" {
   name = "coreos_master"
   path = "/"
 
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ec2:*",
-        "elasticloadbalancing:*",
-        "ecr:GetAuthorizationToken",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetDownloadUrlForLayer",
-        "ecr:GetRepositoryPolicy",
-        "ecr:DescribeRepositories",
-        "ecr:ListImages",
-        "ecr:BatchGetImage",
-        "autoscaling:DescribeAutoScalingGroups",
-        "autoscaling:UpdateAutoScalingGroup"
-      ],
-      "Resource": "*"
-    }
-  ]
+  policy = "${file("files/master_policy.json")}"
 }
-EOF
-}
+
 resource "aws_iam_role" "k8s_master" {
   name               = "k8s-master-role"
   assume_role_policy = "${file("files/assume-role-policy.json")}"
@@ -148,6 +126,11 @@ resource "aws_iam_role" "k8s_master" {
 resource "aws_iam_role_policy_attachment" "k8s_master_attach" {
     role       = "${aws_iam_role.k8s_master.name}"
     policy_arn = "${aws_iam_policy.k8s_master.arn}"
+}
+
+resource "aws_iam_instance_profile" "k8s_master_profile" {
+  name  = "k8s_master_profile"
+  role = "${aws_iam_role.k8s_master.name}"
 }
 
 data "template_file" "userdata_master" {
@@ -171,8 +154,11 @@ resource "aws_instance" "coreos_master" {
     device_index = 0
   }
 
+  iam_instance_profile ="${aws_iam_instance_profile.k8s_master_profile.name}"
+
   tags {
     Name = "${var.coreos-name-master}"
+    KubernetesCluster = "K8S_cluster"
   }
 }
 
@@ -180,6 +166,28 @@ resource "aws_instance" "coreos_master" {
 resource "aws_network_interface" "coreos_node" {
   subnet_id       = "${data.terraform_remote_state.vpc.public_subnets[0]}"
   security_groups = ["${aws_security_group.coreos.id}", "${data.terraform_remote_state.vpc.sg_remote_access}", "${data.terraform_remote_state.vpc.sg_admin}"]
+}
+
+resource "aws_iam_policy" "k8s_node" {
+  name = "coreos_node"
+  path = "/"
+
+  policy = "${file("files/node_policy.json")}"
+}
+
+resource "aws_iam_role" "k8s_node" {
+  name               = "k8s-node-role"
+  assume_role_policy = "${file("files/assume-role-policy.json")}"
+}
+
+resource "aws_iam_role_policy_attachment" "k8s_node_attach" {
+    role       = "${aws_iam_role.k8s_node.name}"
+    policy_arn = "${aws_iam_policy.k8s_node.arn}"
+}
+
+resource "aws_iam_instance_profile" "k8s_node_profile" {
+  name  = "k8s_node_profile"
+  role = "${aws_iam_role.k8s_node.name}"
 }
 
 data "template_file" "userdata_node" {
@@ -204,27 +212,47 @@ resource "aws_instance" "coreos_node" {
     device_index = 0
   }
 
+  iam_instance_profile ="${aws_iam_instance_profile.k8s_node_profile.name}"
+
   tags {
     Name = "${var.coreos-name-node}"
+    KubernetesCluster = "K8S_cluster"
   }
 }
 
-#resource "aws_route53_record" "coreos_dns_record" {
-#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
-#  #name    = "${var.coreos-name}"
-#  name    = "ip-${replace(aws_instance.coreos.private_ip,"/./","-")}"
-#  type    = "A"
-#  ttl     = "300"
-#  records = ["${aws_instance.coreos.private_ip}"]
-#}
-#
-#resource "aws_route53_record" "coreos_dns_reverse" {
-#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
-#  name    = "${replace(aws_instance.coreos.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
-#  type    = "PTR"
-#  ttl     = "300"
-#  records = ["${aws_instance.coreos.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
-#}
+resource "aws_route53_record" "coreos_dns_record_master" {
+  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
+  name    = "${var.coreos-name-master}"
+  #name    = "ip-${replace(aws_instance.coreos_master.private_ip,"/./","-")}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${aws_instance.coreos_master.private_ip}"]
+}
+
+resource "aws_route53_record" "coreos_dns_reverse_master" {
+  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
+  name    = "${replace(aws_instance.coreos_master.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
+  type    = "PTR"
+  ttl     = "300"
+  records = ["${aws_instance.coreos_master.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
+}
+
+resource "aws_route53_record" "coreos_dns_record_node" {
+  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
+  name    = "${var.coreos-name-node}"
+  #name    = "ip-${replace(aws_instance.coreos_node.private_ip,"/./","-")}"
+  type    = "A"
+  ttl     = "300"
+  records = ["${aws_instance.coreos_node.private_ip}"]
+}
+
+resource "aws_route53_record" "coreos_dns_reverse_node1" {
+  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
+  name    = "${replace(aws_instance.coreos_node.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
+  type    = "PTR"
+  ttl     = "300"
+  records = ["${aws_instance.coreos_node.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
+}
 
 
 output "coreos_master_public_ip" {

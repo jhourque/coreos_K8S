@@ -115,6 +115,7 @@ storage:
         inline: |
           [Service]
           Environment=KUBELET_IMAGE_TAG=KUBELET_VERSION
+          Environment=KUBELET_EXTRA_ARGS=--cloud-provider=aws
           Environment="RKT_RUN_ARGS=--uuid-file-save=/var/run/kubelet-pod.uuid \
             --volume var-log,kind=host,source=/var/log \
             --mount volume=var-log,target=/var/log \
@@ -179,7 +180,7 @@ storage:
               - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
               - --runtime-config=extensions/v1beta1/networkpolicies=true
               - --anonymous-auth=false
-              #- --cloud-provider=aws
+              - --cloud-provider=aws
               livenessProbe:
                 httpGet:
                   host: 127.0.0.1

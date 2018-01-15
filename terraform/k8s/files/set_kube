@@ -1,5 +1,7 @@
 if [ ! -f /usr/bin/kubectl ]
 then
+  sudo apt-get update
+  sudo apt-get install -y curl
   curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
   chmod +x ./kubectl
   sudo install ./kubectl /usr/bin/kubectl
@@ -10,3 +12,5 @@ fi
 ./kubectl config set-context default-system --cluster=default-cluster --user=default-admin
 ./kubectl config use-context default-system
 
+# for k8s check: ./kubectl config use-context admin-system
+./kubectl config set-context admin--system  --cluster=default-cluster --user=default-admin --namespace=kube-system

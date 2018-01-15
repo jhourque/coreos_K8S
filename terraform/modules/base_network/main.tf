@@ -90,7 +90,7 @@ resource "aws_eip" "ng" {
 resource "aws_nat_gateway" "gw" {
   allocation_id = "${aws_eip.ng.id}"
   subnet_id     = "${aws_subnet.public.0.id}"
-  depends_on = ["aws_internet_gateway.gw"]
+  depends_on = ["${aws_internet_gateway.gw}"]
 }
 
 resource "aws_route_table" "public" {

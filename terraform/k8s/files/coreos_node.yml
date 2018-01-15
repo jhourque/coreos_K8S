@@ -105,6 +105,7 @@ storage:
         inline: |
           [Service]
           Environment=KUBELET_IMAGE_TAG=KUBELET_VERSION
+          Environment=KUBELET_EXTRA_ARGS=--cloud-provider=aws
           Environment="RKT_OPTS=--uuid-file-save=/var/run/kubelet-pod.uuid \
             --volume dns,kind=host,source=/etc/resolv.conf \
             --mount volume=dns,target=/etc/resolv.conf \
@@ -120,7 +121,7 @@ storage:
             --register-node=true \
             --allow-privileged=true \
             --pod-manifest-path=/etc/kubernetes/manifests \
-            --hostname-override=PRIVATE_IPV4 \
+            --hostname-override=HOSTNAME \
             --cluster_dns=10.3.0.10 \
             --cluster_domain=cluster.local \
             --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml \
