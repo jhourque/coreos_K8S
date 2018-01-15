@@ -105,7 +105,6 @@ storage:
         inline: |
           [Service]
           Environment=KUBELET_IMAGE_TAG=KUBELET_VERSION
-          Environment=KUBELET_EXTRA_ARGS=--cloud-provider=aws
           Environment="RKT_OPTS=--uuid-file-save=/var/run/kubelet-pod.uuid \
             --volume dns,kind=host,source=/etc/resolv.conf \
             --mount volume=dns,target=/etc/resolv.conf \
@@ -126,7 +125,8 @@ storage:
             --cluster_domain=cluster.local \
             --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml \
             --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
-            --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem
+            --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
+            --cloud-provider=aws
           ExecStop=-/usr/bin/rkt stop --uuid-file=/var/run/kubelet-pod.uuid
           Restart=always
           RestartSec=10

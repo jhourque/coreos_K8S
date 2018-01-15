@@ -4,3 +4,5 @@ terraform.tfstate*
 terraform.backup
 *.swp
 *.pem
+*.csr
+*.srl

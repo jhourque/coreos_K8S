@@ -13,4 +13,4 @@ fi
 ./kubectl config use-context default-system
 
 # for k8s check: ./kubectl config use-context admin-system
-./kubectl config set-context admin--system  --cluster=default-cluster --user=default-admin --namespace=kube-system
+./kubectl config set-context admin-system  --cluster=default-cluster --user=default-admin --namespace=kube-system

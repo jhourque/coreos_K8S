@@ -37,11 +37,6 @@ provider "aws" {
   region = "${var.region}"
 }
 
-resource "aws_key_pair" "coreos_keypair" {
-  key_name   = "aws-coreos"
-  public_key = "${file("~/.ssh/id_rsa.k8s.pub")}"
-}
-
 data "terraform_remote_state" "vpc" {
   backend = "s3"
 
@@ -68,6 +63,11 @@ data "aws_ami" "coreos" {
   owners = ["595879546273"]
 }
 
+resource "aws_key_pair" "coreos_keypair" {
+  key_name   = "aws-coreos"
+  public_key = "${file("~/.ssh/id_rsa.k8s.pub")}"
+}
+
 resource "aws_security_group" "coreos" {
   name        = "${var.coreos-name-master}-servers"
   description = "Coreos K8S traffic"
@@ -75,6 +75,7 @@ resource "aws_security_group" "coreos" {
 
   tags {
     Name = "${var.coreos-name-master} Servers"
+    KubernetesCluster = "K8S_cluster"
   }
 }
 
@@ -100,6 +101,15 @@ resource "aws_security_group_rule" "coreos_k8s_https" {
   type              = "ingress"
   from_port         = "443"
   to_port           = "443"
+  protocol          = "tcp"
+  cidr_blocks       = ["${var.cidr_block}"]
+  security_group_id = "${aws_security_group.coreos.id}"
+}
+
+resource "aws_security_group_rule" "coreos_k8s_service" {
+  type              = "ingress"
+  from_port         = "30000"
+  to_port           = "32767"
   protocol          = "tcp"
   cidr_blocks       = ["${var.cidr_block}"]
   security_group_id = "${aws_security_group.coreos.id}"
@@ -220,39 +230,39 @@ resource "aws_instance" "coreos_node" {
   }
 }
 
-resource "aws_route53_record" "coreos_dns_record_master" {
-  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
-  name    = "${var.coreos-name-master}"
-  #name    = "ip-${replace(aws_instance.coreos_master.private_ip,"/./","-")}"
-  type    = "A"
-  ttl     = "300"
-  records = ["${aws_instance.coreos_master.private_ip}"]
-}
-
-resource "aws_route53_record" "coreos_dns_reverse_master" {
-  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
-  name    = "${replace(aws_instance.coreos_master.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
-  type    = "PTR"
-  ttl     = "300"
-  records = ["${aws_instance.coreos_master.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
-}
-
-resource "aws_route53_record" "coreos_dns_record_node" {
-  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
-  name    = "${var.coreos-name-node}"
-  #name    = "ip-${replace(aws_instance.coreos_node.private_ip,"/./","-")}"
-  type    = "A"
-  ttl     = "300"
-  records = ["${aws_instance.coreos_node.private_ip}"]
-}
-
-resource "aws_route53_record" "coreos_dns_reverse_node1" {
-  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
-  name    = "${replace(aws_instance.coreos_node.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
-  type    = "PTR"
-  ttl     = "300"
-  records = ["${aws_instance.coreos_node.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
-}
+#resource "aws_route53_record" "coreos_dns_record_master" {
+#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
+#  name    = "${var.coreos-name-master}"
+#  #name    = "ip-${replace(aws_instance.coreos_master.private_ip,"/./","-")}"
+#  type    = "A"
+#  ttl     = "300"
+#  records = ["${aws_instance.coreos_master.private_ip}"]
+#}
+#
+#resource "aws_route53_record" "coreos_dns_reverse_master" {
+#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
+#  name    = "${replace(aws_instance.coreos_master.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
+#  type    = "PTR"
+#  ttl     = "300"
+#  records = ["${aws_instance.coreos_master.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
+#}
+#
+#resource "aws_route53_record" "coreos_dns_record_node" {
+#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone}"
+#  name    = "${var.coreos-name-node}"
+#  #name    = "ip-${replace(aws_instance.coreos_node.private_ip,"/./","-")}"
+#  type    = "A"
+#  ttl     = "300"
+#  records = ["${aws_instance.coreos_node.private_ip}"]
+#}
+#
+#resource "aws_route53_record" "coreos_dns_reverse_node1" {
+#  zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
+#  name    = "${replace(aws_instance.coreos_node.private_ip,"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"
+#  type    = "PTR"
+#  ttl     = "300"
+#  records = ["${aws_instance.coreos_node.private_ip}.${data.terraform_remote_state.vpc.private_domain_name}"]
+#}
 
 
 output "coreos_master_public_ip" {
