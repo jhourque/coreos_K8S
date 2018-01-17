@@ -6,3 +6,4 @@ terraform.backup
 *.pem
 *.csr
 *.srl
+*.ign

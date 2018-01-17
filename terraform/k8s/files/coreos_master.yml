@@ -133,7 +133,6 @@ storage:
             --container-runtime=docker \
             --allow-privileged=true \
             --pod-manifest-path=/etc/kubernetes/manifests \
-            --hostname-override=HOSTNAME \
             --cluster_dns=10.3.0.10 \
             --cluster_domain=cluster.local \
             --cloud-provider=aws
