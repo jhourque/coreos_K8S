@@ -47,57 +47,13 @@ storage:
       mode:       0644
       contents:
         inline: |
-          -----BEGIN CERTIFICATE-----
-          MIIDKTCCAhGgAwIBAgIJAN+g3aN5Nu6MMA0GCSqGSIb3DQEBCwUAMCsxEDAOBgNV
-          BAMMB2t1YmUtY2ExFzAVBgNVBAoMDnN5c3RlbTptYXN0ZXJzMB4XDTE4MDEyMjA5
-          MjU1MFoXDTQ1MDYwOTA5MjU1MFowKzEQMA4GA1UEAwwHa3ViZS1jYTEXMBUGA1UE
-          CgwOc3lzdGVtOm1hc3RlcnMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
-          AQDAUahg4fPDZfc3p9ka4HA9XxrnoSHSh+QY+mt4lYbTpahyK7lJYkPcgZ0Gcggv
-          XFmPXIjyzmrv4ErYwu8cPoDCYXfnniYDKeKkQbVxLVtVHJEAMLt2xxLtogXYOpmA
-          RnutQHgMi/nlJNqdIrQdafb14gu3LPpGOZToyDwT5oH/AHLUJebA+3IdWW4RRKzq
-          6/fNk7wwRLw1C2OwkMLsyNF2Rli7DC19xGJqi3B2ZsaT8hP7tHTPG/rXbBdx51hT
-          9q2qNLDh/H76JKo76EfvOOEkic9NfZSQEUDk94u7SnN+aJfIchKJxCsDlL+lTFqY
-          p5qPheQqBwEShj7w7OYd13iPAgMBAAGjUDBOMB0GA1UdDgQWBBTNdSBicblBVziI
-          J7nZXF5aGGTY+DAfBgNVHSMEGDAWgBTNdSBicblBVziIJ7nZXF5aGGTY+DAMBgNV
-          HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQC5oBdKhmaB7ulVAsbn5fu+4dGR
-          dZJaNH5pyhq7RougMjoNe+GCmjXTzw3XaCJlwSvxw2UtAxJKvV0yVTK3qUY0rZ3X
-          KdnhxeAVKl8gUYe77R9eMAMHyqljhapxDwIuOx0WbAFSbxR9U/icYTPdKAfEYC1P
-          uvOXlygFko/4cJ2yjbdy2Chv4rFBxWGrI+fmpJCuuSqydmPq9l7XKMlg7z5+0aZi
-          JCKhb4JH3LQuQ+zlaSflGCd1f3jtxOUyIz3IoCxslh6BMSDmHr5jFBEGQPSSexrV
-          TVWkLqYm+Mn4EWDwsdx1grOpjw3ybZx/XTLezsCbVvqkBibLyqi7Xvc6VwDN
-          -----END CERTIFICATE-----
+          {{ ca.pem }}
     - filesystem: "root"
       path:       "/etc/kubernetes/ssl/ca-key.pem"
       mode:       0644
       contents:
         inline: |
-          -----BEGIN RSA PRIVATE KEY-----
-          MIIEpAIBAAKCAQEAwFGoYOHzw2X3N6fZGuBwPV8a56Eh0ofkGPpreJWG06Wociu5
-          SWJD3IGdBnIIL1xZj1yI8s5q7+BK2MLvHD6AwmF3554mAynipEG1cS1bVRyRADC7
-          dscS7aIF2DqZgEZ7rUB4DIv55STanSK0HWn29eILtyz6RjmU6Mg8E+aB/wBy1CXm
-          wPtyHVluEUSs6uv3zZO8MES8NQtjsJDC7MjRdkZYuwwtfcRiaotwdmbGk/IT+7R0
-          zxv612wXcedYU/atqjSw4fx++iSqO+hH7zjhJInPTX2UkBFA5PeLu0pzfmiXyHIS
-          icQrA5S/pUxamKeaj4XkKgcBEoY+8OzmHdd4jwIDAQABAoIBAC21OqeMDDtsiI0Z
-          v2e73/E2IVbb3QYEdhnZqqFGKH006gv4iFkAmdBWndNiVr+q2z5PZ90NYi0Qybkq
-          21mDIWcRc0YBOFeYJN2VIGJ9vS9FUtEQw/0+4yjHUUxK4SCzn8FViTKyMfpb//lI
-          vjYfcSqPRumKLxFxrgqFTIIOTucj8g7n1aPZZZzhgYP2mPiTcQNE3fSfngT2ZC7b
-          yt6UQ15xsdhkfYnDxUE7sTBa8/c9WBy4ecT5xPP6+GLsjqa1CoyEcE83tfQPs69F
-          LjTAez1ZTBnmed3l3P78bZoKcGPHYc8Fy9UNUTXu8vrrd821knJVKBQIbizVwkFL
-          rsYLTAECgYEA902S/BP+5Y7Ff8k/EWqNyv//ubKa5eYRyEZSQFlyPo1L94JqM1+Z
-          +eXfqGIY5KCsaAZtuzjmyYV7Sko4iSpb+Qy5P7C/KzjYNLRWQ2Kt7dFl+huMhjHP
-          L+M1OSBw93nPl+pSh/utXZ60/idg6lnX8eATCMA/Tth5t02gtG4UqE8CgYEAxxUS
-          Yb1wGYlVPTaqA2M8wHssHfJUddru8CLZPRzikppEZpPpAzgL64agsnMJTuotnug/
-          6Z7T3NAJDeFB6hAqyq3NimCS1qbHAbVxts9bv2ySyCAmHSdu/IwOo8GBWZktv3dw
-          wGqzbcBib62K4lq6nm5e1PNvkL5B7WwbrNvn28ECgYBocFVbqaIjFhloLvg4hbRd
-          /6Dirn/mCTSHTNNdo6iwrAFiBKyPB5fCRoce2FbE7uoAgH6E67Hjd0CrDg80NjRj
-          SDFPqXgCa94629H2YU0suxsC9fFxlsV15tFKT94FVWcLNAUosmvztpufHcg7EDg3
-          SLchIfdad+dnNxxgNoD41wKBgQCFNOE+yu2V+KEzOz9Y0u7Ub9YeF4ZR8XLM9NRc
-          otYrd9Nqu28++yJmrocZwAUra1+pIweYvvBNoFlekylyfuzS/qY3/9Rgkek4iHqU
-          8nwWQoSYKYK3ISqPCvvEsHZnSConIbks1nhGaGK1DO6P9FtIJNuJK3Wr6NHeFecS
-          q3WhQQKBgQDllm7QnM0XGjiq99Nw0RTa/VvfQF0QIzL4TUiqbISspoyo4D5knSog
-          5/6eS8ILur5T9S5QAoZb7gDWfXmth93Vw1dAG4Df0C+fATqHi+9jWvzrI74UYOpP
-          pYdH6gw/NaROoROXyZtHaS/lHYZEO/VL1Lga7ipTbi5b7ELwFCzY+g==
-          -----END RSA PRIVATE KEY-----
+          {{ ca-key.pem }}
     - filesystem: "root"
       path:       "/etc/systemd/system/kubelet.service"
       mode:       0644

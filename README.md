@@ -51,17 +51,15 @@ terraform apply
 ```
 
 ### Setup K8S Cluster
-Generate ca and admin keys in terraform/k8s/files/ssl
+Generate ca and admin keys and update cloud config in terraform/k8s/files/ssl
 ```
 ./ca_generator.sh
 ./admin_generator.sh
+./inject_ca.sh
 ```
-
-Copy ca.pem ca-key.pem content in terraform/k8s/files/coreos_*.yml
-
 Generate ignition files in terraform/k8s/files
 ```
-./gen_ign
+./gen_ign.sh
 ```
 
 ### Create K8S Cluster
@@ -81,4 +79,7 @@ kubectl get nodes
 ```
 
 
-
+## TODO:
+- Deploy node on AZ
+- Enable RBAC
+- Configure multi-Master

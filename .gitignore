@@ -7,3 +7,5 @@ terraform.backup
 *.csr
 *.srl
 *.ign
+coreos_master.yml
+coreos_node.yml
