@@ -12,3 +12,5 @@ state_bucket = "coreosk8s-tfstate"
 repo_state_key = "repo.tfstate"
 vpc_state_key = "vpc.tfstate"
 dns_alias = "k8s"
+
+node-count = "2"

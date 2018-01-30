@@ -6,38 +6,18 @@ provider "aws" {
   region = "${var.region}"
 }
 
-resource "aws_ecr_repository" "vote" {
-  name = "demo/vote"
+resource "aws_ecr_repository" "app" {
+  name = "k8s/simple-php-app"
 }
 
-resource "aws_ecr_repository" "dynnginx" {
-  name = "demo/dynnginx"
+resource "aws_ecr_repository" "mariadb" {
+  name = "k8s/mariadb"
 }
 
-resource "aws_ecr_repository" "dynhaproxy" {
-  name = "demo/dynhaproxy"
+output "ecr_app_url" {
+  value = "${aws_ecr_repository.app.repository_url}"
 }
 
-output "ecr_vote_id" {
-  value = "${aws_ecr_repository.vote.registry_id}"
-}
-
-output "ecr_dynnginx_id" {
-  value = "${aws_ecr_repository.dynnginx.registry_id}"
-}
-
-output "ecr_dynhaproxy_id" {
-  value = "${aws_ecr_repository.dynhaproxy.registry_id}"
-}
-
-output "ecr_vote_url" {
-  value = "${aws_ecr_repository.vote.repository_url}"
-}
-
-output "ecr_dynnginx_url" {
-  value = "${aws_ecr_repository.dynnginx.repository_url}"
-}
-
-output "ecr_dynhaproxy_url" {
-  value = "${aws_ecr_repository.dynhaproxy.repository_url}"
+output "ecr_mariadb_url" {
+  value = "${aws_ecr_repository.mariadb.repository_url}"
 }

@@ -2,7 +2,7 @@ if [ ! -f /usr/bin/kubectl ]
 then
   sudo apt-get update
   sudo apt-get install -y curl
-  curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+  curl -k -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s -k https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
   chmod +x ./kubectl
   sudo install ./kubectl /usr/bin/kubectl
 fi
