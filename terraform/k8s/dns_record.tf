@@ -25,7 +25,7 @@ resource "aws_route53_record" "coreos_dns_record_node" {
   records = ["${element(aws_instance.coreos_node.*.private_ip, count.index)}"]
 }
 
-resource "aws_route53_record" "coreos_dns_reverse_node1" {
+resource "aws_route53_record" "coreos_dns_reverse_node" {
   count   = "${var.node-count}"
   zone_id = "${data.terraform_remote_state.vpc.private_host_zone_reverse}"
   name    = "${replace(element(aws_instance.coreos_node.*.private_ip, count.index),"/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/","$4.$3")}"

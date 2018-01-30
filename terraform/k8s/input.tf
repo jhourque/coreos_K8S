@@ -30,7 +30,7 @@ variable coreos-name-node {
 
 variable node-count {
   type    = "string"
-  default = "2"
+  default = "4"
 }
 
 variable kubelet_version {

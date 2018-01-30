@@ -13,4 +13,4 @@ repo_state_key = "repo.tfstate"
 vpc_state_key = "vpc.tfstate"
 dns_alias = "k8s"
 
-node-count = "2"
+node-count = "4"

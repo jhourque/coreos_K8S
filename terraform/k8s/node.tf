@@ -1,7 +1,7 @@
 #### K8S Node ####
 resource "aws_network_interface" "coreos_node" {
   count           = "${var.node-count}"
-  subnet_id       = "${data.terraform_remote_state.vpc.public_subnets[0]}"
+  subnet_id       = "${element(data.terraform_remote_state.vpc.public_subnets, count.index % length(data.terraform_remote_state.vpc.public_subnets))}"
   security_groups = ["${aws_security_group.coreos.id}", "${data.terraform_remote_state.vpc.sg_remote_access}", "${data.terraform_remote_state.vpc.sg_admin}"]
 }
 
