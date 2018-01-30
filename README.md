@@ -80,6 +80,5 @@ kubectl get nodes
 
 
 ## TODO:
-- Deploy node on AZ
 - Enable RBAC
 - Configure multi-Master
