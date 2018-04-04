@@ -14,3 +14,5 @@ vpc_state_key = "vpc.tfstate"
 dns_alias = "k8s"
 
 node-count = "4"
+kubelet_version = "v1.10.0_coreos.0"
+

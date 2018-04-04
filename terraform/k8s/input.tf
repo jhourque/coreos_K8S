@@ -35,7 +35,6 @@ variable node-count {
 
 variable kubelet_version {
   type    = "string"
-  default = "v1.10.0_coreos.0"
 }
 
 provider "aws" {
