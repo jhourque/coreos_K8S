@@ -81,6 +81,7 @@ storage:
             --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml \
             --tls-cert-file=/etc/kubernetes/ssl/worker.pem \
             --tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem \
+            --feature-gates=PodPriority=true \
             --cloud-provider=aws
           ExecStop=-/usr/bin/rkt stop --uuid-file=/var/run/kubelet-pod.uuid
           Restart=always

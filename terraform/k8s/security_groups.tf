@@ -61,7 +61,7 @@ resource "aws_security_group_rule" "coreos_k8s_flannel" {
 
 resource "aws_security_group_rule" "coreos_k8s_service" {
   type              = "ingress"
-  from_port         = "30000"
+  from_port         = "0"
   to_port           = "32767"
   protocol          = "tcp"
   cidr_blocks       = ["${var.cidr_block}"]

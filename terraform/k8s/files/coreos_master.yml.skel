@@ -91,6 +91,7 @@ storage:
             --pod-manifest-path=/etc/kubernetes/manifests \
             --cluster_dns=10.3.0.10 \
             --cluster_domain=cluster.local \
+            --feature-gates=PodPriority=true \
             --cloud-provider=aws
           ExecStop=-/usr/bin/rkt stop --uuid-file=/var/run/kubelet-pod.uuid
           Restart=always
@@ -125,13 +126,15 @@ storage:
               - --service-cluster-ip-range=10.3.0.0/24
               - --secure-port=443
               - --advertise-address=PRIVATE_IPV4
-              - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota
+              - --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota,Priority
               - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
               - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
               - --client-ca-file=/etc/kubernetes/ssl/ca.pem
               - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
-              - --runtime-config=extensions/v1beta1/networkpolicies=true
+              - --runtime-config=extensions/v1beta1/networkpolicies=true,scheduling.k8s.io/v1alpha1=true
               - --anonymous-auth=false
+              - --authorization-mode=RBAC
+              - --feature-gates=PodPriority=true
               - --cloud-provider=aws
               livenessProbe:
                 httpGet:

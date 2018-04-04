@@ -2,6 +2,8 @@
 resource "aws_network_interface" "coreos_master" {
   subnet_id       = "${data.terraform_remote_state.vpc.public_subnets[0]}"
   security_groups = ["${aws_security_group.coreos.id}", "${data.terraform_remote_state.vpc.sg_remote_access}", "${data.terraform_remote_state.vpc.sg_admin}"]
+  # Add route Destination 10.3.0.0/16 in SUB_PUB0 to allow bastion to access k8s services
+  source_dest_check      = "false"
 }
 
 data "template_file" "userdata_master" {
